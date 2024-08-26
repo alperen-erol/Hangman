@@ -3,6 +3,11 @@ import { HangmanStick } from "./HangmanStick";
 import { HangmanWord } from "./HangmanWord";
 import { Keyboard } from "./Keyboard";
 import wordlist from "./wordList.json";
+
+function getWord() {
+  return wordlist[Math.floor(Math.random() * wordlist.length)];
+}
+
 function App() {
   const [wordToGuess, setWordToGuess] = useState(() => {
     return wordlist[Math.floor(Math.random() * wordlist.length)];
@@ -42,7 +47,22 @@ function App() {
     };
   }, [guessedLetters]);
 
-  console.log(guessedLetters);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key;
+      if (key !== "Enter") return;
+
+      e.preventDefault();
+      setGuessedLetters([]);
+      setWordToGuess(getWord());
+    };
+
+    document.addEventListener("keypress", handler);
+
+    return () => {
+      document.removeEventListener("keypress", handler);
+    };
+  }, []);
 
   return (
     <div
