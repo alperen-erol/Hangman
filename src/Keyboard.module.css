@@ -1,3 +1,7 @@
+html{
+    background-color: rgb(154, 183, 189);
+    
+}
 .btn{
     width: 100%;
     border: 2px solid black;
@@ -11,12 +15,14 @@
 }
 
 .btn.active{
-    background-color: hsl(200, 100%, 50%);}
+    background-color: hsl(0, 0%, 100%);}
 .btn.inactive{
     opacity: .3;
+    background-color: hsl(0, 0%, 100%);
 }
 
 .btn:hover,
 .btn:focus{
-    background-color: hsl(200, 100%, 75%);
+    background-color: hsl(178, 100%, 61%);
+    transition: all 0.35s;
 }

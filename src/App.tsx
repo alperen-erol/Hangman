@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { HangmanStick } from "./HangmanStick";
 import { HangmanWord } from "./HangmanWord";
 import { Keyboard } from "./Keyboard";
@@ -10,9 +10,39 @@ function App() {
 
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
 
-  const incorrecLetters = guessedLetters.filter(
+  const incorrectLetters = guessedLetters.filter(
     (letter) => !wordToGuess.includes(letter)
   );
+
+  const isLoser = incorrectLetters.length >= 6;
+  const isWinner = wordToGuess
+    .split("")
+    .every((letter) => guessedLetters.includes(letter));
+
+  const addGuessedLetter = useCallback(
+    (letter: string) => {
+      if (guessedLetters.includes(letter) || isLoser || isWinner) return;
+      setGuessedLetters((currentLetters) => [...currentLetters, letter]);
+    },
+    [guessedLetters, isWinner, isLoser]
+  );
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key;
+
+      if (!key.match(/^[a-z]$/)) return;
+      e.preventDefault();
+      addGuessedLetter(key);
+    };
+    document.addEventListener("keypress", handler);
+
+    return () => {
+      document.removeEventListener("keypress", handler);
+    };
+  }, [guessedLetters]);
+
+  console.log(guessedLetters);
 
   return (
     <div
@@ -31,12 +61,23 @@ function App() {
           textAlign: "center",
         }}
       >
-        losewin
+        {isWinner && "Winner! - Refresh to try again"}
+        {isLoser && "Nice Try - Refresh to try again"}
       </div>
-      <HangmanStick numberOfGuesses={incorrecLetters.length} />
-      <HangmanWord guessedLetters={guessedLetters} wordToGuess={wordToGuess} />
+      <HangmanStick numberOfGuesses={incorrectLetters.length} />
+      <HangmanWord
+        guessedLetters={guessedLetters}
+        wordToGuess={wordToGuess}
+        reveal={isLoser}
+      />
       <div style={{ alignSelf: "stretch" }}>
-        <Keyboard />
+        <Keyboard
+          activeLetters={guessedLetters.filter((letter) =>
+            wordToGuess.includes(letter)
+          )}
+          inactiveLetters={incorrectLetters}
+          addGuessedLetter={addGuessedLetter}
+        />
       </div>
     </div>
   );
